@@ -28,8 +28,6 @@ class checker_board:
 
         # Optionally load crown and primary ravens_logo (not used on board here)
         crown = pg.image.load(os.path.join(asset_path, "crown.png"))
-        logo = pg.image.load(os.path.join(asset_path, "ravens_logo.png"))
-        self.crown = pg.transform.scale(crown, (sq_size, sq_size))
         self.logo = pg.transform.scale(logo, (sq_size, sq_size))
 
     def draw_cubes(self, window):
