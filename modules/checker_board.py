@@ -26,9 +26,6 @@ class checker_board:
             logo = pg.image.load(os.path.join(asset_path, f"raven{i}.jpeg"))
             self.logos.append(pg.transform.scale(logo, (sq_size, sq_size)))
 
-        # Optionally load crown and primary ravens_logo (not used on board here)
-        crown = pg.image.load(os.path.join(asset_path, "crown.png"))
-        self.logo = pg.transform.scale(logo, (sq_size, sq_size))
 
     def draw_cubes(self, window):
         """Draw checkerboard with random Raven logos on yellow squares."""
