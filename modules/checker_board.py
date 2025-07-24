@@ -29,12 +29,12 @@ class checker_board:
 
     def draw_cubes(self, window):
         """Draw checkerboard with random Raven logos on yellow squares."""
-        window.fill(green)
+        window.fill(black)
         for row in range(rows):
             for col in range(cols):
                 rect = (col * sq_size, row * sq_size, sq_size, sq_size)
                 if (row + col) % 2 == 0:
-                    pg.draw.rect(window, green, rect)
+                    pg.draw.rect(window, black, rect)
                 else:
                     pg.draw.rect(window, yellow, rect)
                     logo = random.choice(self.logos)
