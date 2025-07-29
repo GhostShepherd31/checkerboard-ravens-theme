@@ -1,50 +1,54 @@
 """
-Author : Dhruv B Kakadiya
-
+Author: Reshard Turner (based on original by Dhruv B Kakadiya)
+Purpose: Main game loop for the Ravens-themed Checkerboard
 """
 
-# import libraries
+# Import libraries
 import pygame as pg
 from modules import statics as st
 from modules.statics import *
 from modules.checker_board import *
 from modules.checker import *
 
-# static variables for this perticular file
+# Static variables for this file
 fps = 60
 
+# Initialize Pygame display
 WIN = pg.display.set_mode((st.width, st.height))
 pg.display.set_caption("Checkers")
 
-# get row and col for mouse
+# 🎨 Initialize font for score display
+pg.font.init()
+score_font = pg.font.SysFont('Arial', 30)
+
+# Get row and column for mouse position
 def get_row_col_mouse(pos):
     x, y = pos
     row = y // sq_size
     col = x // sq_size
     return row, col
 
-
-# main function
+# 🏁 Main function
 if __name__ == "__main__":
-
-    # represents the game
+    # Represents the game state
     run = True
 
-    # certain clock value default because it is varries from diff pc to pc
+    # Clock to control FPS
     clock = pg.time.Clock()
 
-    # create board
+    # Create board and game objects
     board = checker_board()
     game = checker(WIN)
 
-    # main loop
+    # 🎮 Main game loop
     while run:
         clock.tick(fps)
 
-        if board.winner() != None:
-            print(board.winner())
+        # Check for a winner
+        if board.winner() is not None:
+            print(f"Winner: {board.winner()}")
 
-        # check if any events is running or not
+        # Check events
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
@@ -53,8 +57,19 @@ if __name__ == "__main__":
                 pos = pg.mouse.get_pos()
                 row, col = get_row_col_mouse(pos)
                 game.selectrc(row, col)
-                # piece = board.get_piece(row, col)
-                # board.move(piece, 4, 3)
 
+        # 🔄 Update game display
         game.update()
+
+        # 🏆 Draw live scores on the screen
+        white_score_text = score_font.render(f"White Score: {board.white_score}", True, (255, 255, 255))
+        black_score_text = score_font.render(f"Black Score: {board.black_score}", True, (0, 0, 0))
+
+        WIN.blit(white_score_text, (10, 10))
+        WIN.blit(black_score_text, (10, 40))
+
+        # Refresh display to show new scores
+        pg.display.update()
+
+    # Quit Pygame when the loop ends
     pg.quit()
