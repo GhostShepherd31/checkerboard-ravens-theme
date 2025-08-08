@@ -1,6 +1,5 @@
 """
 Author : Dhruv B Kakadiya
-
 """
 
 import pygame as pg
@@ -8,29 +7,31 @@ from .checker_board import *
 from .statics import *
 from .pieces import *
 
-
 class checker:
     def __init__(self, window):
-        self._init()
         self.window = window
+        self._load_icons()
+        self._init()
 
-    # to update the position
+    def _load_icons(self):
+        # Load icon images from assets
+        self.player1_icon = pg.image.load("assets/raven1.jpeg")
+        self.player2_icon = pg.image.load("assets/raven7.jpeg")
+
+    def _init(self):
+        self.select = None
+        self.board = checker_board(self.player1_icon, self.player2_icon)
+        self.turn = black
+        self.valid_moves = {}
+
+    def reset(self):
+        self._init()
+
     def update(self):
         self.board.draw(self.window)
         self.draw_moves(self.valid_moves)
         pg.display.update()
 
-    def _init(self):
-        self.select = None
-        self.board = checker_board()
-        self.turn = black
-        self.valid_moves = {}
-
-    # to reset the position
-    def reset(self):
-        self._init()
-
-    # select row and column
     def selectrc(self, row, col):
         if self.select:
             result = self._move(row, col)
@@ -38,16 +39,15 @@ class checker:
                 self.select = None
 
         piece = self.board.get_piece(row, col)
-        if (piece != 0) and (piece.color == self.turn):
+        if piece != 0 and piece.color == self.turn:
             self.select = piece
             self.valid_moves = self.board.get_valid_moves(piece)
             return True
         return False
 
-    # to move the pieces
     def _move(self, row, col):
         piece = self.board.get_piece(row, col)
-        if (self.select) and (piece == 0) and (row, col) in self.valid_moves:
+        if self.select and piece == 0 and (row, col) in self.valid_moves:
             self.board.move(self.select, row, col)
             skip = self.valid_moves[(row, col)]
             if skip:
@@ -57,7 +57,6 @@ class checker:
             return False
         return True
 
-    # to draw next possible move
     def draw_moves(self, moves):
         for move in moves:
             row, col = move
@@ -68,10 +67,6 @@ class checker:
                 15,
             )
 
-    # for changing the turn
     def chg_turn(self):
         self.valid_moves = {}
-        if self.turn == black:
-            self.turn = white
-        else:
-            self.turn = black
+        self.turn = white if self.turn == black else black
