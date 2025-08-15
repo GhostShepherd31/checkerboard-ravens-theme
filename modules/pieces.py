@@ -5,6 +5,7 @@ Author : Dhruv B Kakadiya
 from .statics import *
 import pygame as pg
 
+
 class pieces:
     padding = 17
     outline = 2
@@ -44,7 +45,7 @@ class pieces:
         if self.king:
             window.blit(
                 crown,
-                (self.x - crown.get_width() // 2, self.y - crown.get_height() // 2)
+                (self.x - crown.get_width() // 2, self.y - crown.get_height() // 2),
             )
 
     def move(self, row, col):
