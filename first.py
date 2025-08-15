@@ -3,73 +3,94 @@ Author: Reshard Turner (based on original by Dhruv B Kakadiya)
 Purpose: Main game loop for the Ravens-themed Checkerboard
 """
 
-# Import libraries
 import pygame as pg
-from modules import statics as st
-from modules.statics import *
-from modules.checker_board import *
-from modules.checker import *
+import modules.statics as st
+from modules.statics import sq_size, rows, cols
+from modules.checker_board import checker_board
+from modules.checker import checker
 
-# Static variables for this file
-fps = 60
+FPS = 60
 
-# Initialize Pygame display
-WIN = pg.display.set_mode((st.width, st.height))
-pg.display.set_caption("Checkers")
 
-# 🎨 Initialize font for score display
-pg.font.init()
-score_font = pg.font.SysFont('Arial', 30)
-
-# Get row and column for mouse position
 def get_row_col_mouse(pos):
     x, y = pos
-    row = y // sq_size
-    col = x // sq_size
-    return row, col
+    return y // sq_size, x // sq_size
 
-# 🏁 Main function
+
+def draw_score_overlay(surface, board_obj, font):
+    panel_rect = pg.Rect(8, 8, 250, 68)
+    overlay = pg.Surface(panel_rect.size, pg.SRCALPHA)
+    overlay.fill((0, 0, 0, 120))
+    surface.blit(overlay, panel_rect.topleft)
+    white_text = font.render(
+        f"White Score: {getattr(board_obj, 'white_score', 0)}", True, (255, 255, 255)
+    )
+    black_text = font.render(
+        f"Black Score: {getattr(board_obj, 'black_score', 0)}", True, (255, 255, 255)
+    )
+    surface.blit(white_text, (panel_rect.x + 10, panel_rect.y + 8))
+    surface.blit(black_text, (panel_rect.x + 10, panel_rect.y + 38))
+
+
+def draw_winner_banner(surface, winner, font):
+    msg = f"Winner: {winner}"
+    text = font.render(msg, True, (255, 255, 255))
+    padding = 24
+    box_w, box_h = text.get_width() + padding * 2, text.get_height() + padding * 2
+    box_x = (st.width - box_w) // 2
+    box_y = (st.height - box_h) // 2
+    overlay = pg.Surface((box_w, box_h), pg.SRCALPHA)
+    overlay.fill((0, 0, 0, 180))
+    surface.blit(overlay, (box_x, box_y))
+    surface.blit(text, (box_x + padding, box_y + padding))
+
+
 if __name__ == "__main__":
-    # Represents the game state
+    pg.init()
+    pg.font.init()
+
+    WIN = pg.display.set_mode((st.width, st.height))
+    pg.display.set_caption("Checkers")
+
+    try:
+        score_font = pg.font.SysFont("Arial", 24)
+        banner_font = pg.font.SysFont("Arial", 36, bold=True)
+    except Exception:
+        score_font = pg.font.Font(None, 24)
+        banner_font = pg.font.Font(None, 36)
+
+    clock = pg.time.Clock()
     run = True
 
-    # Clock to control FPS
-    clock = pg.time.Clock()
-
-    # Create board and game objects
     board = checker_board()
     game = checker(WIN)
 
-    # 🎮 Main game loop
+    print("[Controls]  Esc: Quit   R: Reset game")
+
     while run:
-        clock.tick(fps)
+        clock.tick(FPS)
 
-        # Check for a winner
-        if board.winner() is not None:
-            print(f"Winner: {board.winner()}")
-
-        # Check events
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 run = False
+            elif event.type == pg.KEYDOWN:
+                if event.key == pg.K_ESCAPE:
+                    run = False
+                elif event.key == pg.K_r:
+                    board = checker_board()
+                    game = checker(WIN)
+                    print("[Info] Game reset.")
+            elif event.type == pg.MOUSEBUTTONDOWN and event.button == 1:
+                row, col = get_row_col_mouse(pg.mouse.get_pos())
+                if 0 <= row < rows and 0 <= col < cols:
+                    game.selectrc(row, col)
 
-            if event.type == pg.MOUSEBUTTONDOWN:
-                pos = pg.mouse.get_pos()
-                row, col = get_row_col_mouse(pos)
-                game.selectrc(row, col)
-
-        # 🔄 Update game display
         game.update()
+        draw_score_overlay(WIN, board, score_font)
+        w = board.winner()
+        if w is not None:
+            draw_winner_banner(WIN, w, banner_font)
 
-        # 🏆 Draw live scores on the screen
-        white_score_text = score_font.render(f"White Score: {board.white_score}", True, (255, 255, 255))
-        black_score_text = score_font.render(f"Black Score: {board.black_score}", True, (0, 0, 0))
-
-        WIN.blit(white_score_text, (10, 10))
-        WIN.blit(black_score_text, (10, 40))
-
-        # Refresh display to show new scores
         pg.display.update()
 
-    # Quit Pygame when the loop ends
     pg.quit()
